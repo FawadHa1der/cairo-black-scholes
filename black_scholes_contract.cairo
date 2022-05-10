@@ -28,6 +28,10 @@ const MIN_T_ANNUALISED = 31709791983764586496
 const MIN_VOLATILITY = UNIT / 10000
 const DIV_BOUND = (2 ** 128) / 2
 
+
+# formula for vanna and vomma/volga borrowed from 
+# https://financetrainingcourse.com/education/2014/06/vega-volga-and-vanna-the-volatility-greeks/
+
 # Returns y, the exponent of x.
 # Uses first 50 terms of taylor series expansion centered at 0.
 func exp{range_check_ptr}(x) -> (y):

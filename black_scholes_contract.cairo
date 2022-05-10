@@ -151,6 +151,18 @@ end
 # Returns y, standard normal distribution at x.
 # This computes e^(-x^2/2) / sqrt(2*pi).
 func std_normal{range_check_ptr}(x) -> (y):
+    # If input is less than MIN_CDF_INPUT, return 0.
+    let (lower) = is_le(x, MIN_CDF_INPUT)
+    if lower == 1:
+        return (y=0)
+    end
+
+    # If input is greater than MAX_CDF_INPUT, return UNIT.
+    let (upper) = is_in_range(x, MIN_CDF_INPUT, MAX_CDF_INPUT)
+    if upper == 0:
+        return (y=UNIT)
+    end
+
     let (x_squared_over_two, _) = unsigned_div_rem(x * x, UNIT * 2)
     let (exponent_term) = exp(-x_squared_over_two)
     let (div, _) = unsigned_div_rem(UNIT * exponent_term, SQRT_TWOPI)
@@ -294,6 +306,7 @@ func vega{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (veg
     let (std_normal_d1) = std_normal(d1)
     let (std_normal_d1_spot, _) = unsigned_div_rem(std_normal_d1 * spot, UNIT)
     let (vega, _) = unsigned_div_rem(sqrt_t * std_normal_d1_spot, UNIT)
+    %{ print(f' vega:{ids.vega}  sqrt_t :{ids.sqrt_t} std_normal_d1_spot:{ids.std_normal_d1_spot} std_normal_d1  :{ids.std_normal_d1} spot:{ids.spot} ') %}
     return (vega)
 end
 

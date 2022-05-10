@@ -163,9 +163,9 @@ func std_normal{range_check_ptr}(x) -> (y):
         return (y=UNIT)
     end
 
-    let (x_squared_over_two, _) = unsigned_div_rem(x * x, UNIT * 2)
+    let (x_squared_over_two, _) = signed_div_rem(x * x, UNIT * 2, DIV_BOUND)
     let (exponent_term) = exp(-x_squared_over_two)
-    let (div, _) = unsigned_div_rem(UNIT * exponent_term, SQRT_TWOPI)
+    let (div, _) = signed_div_rem(UNIT * exponent_term, SQRT_TWOPI, DIV_BOUND)
     return (y=div)
 end
 
@@ -304,8 +304,8 @@ func vega{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (veg
     let (local sqrt_t) = sqrt(UNIT * t_annualised)
     let (d1, _) = d1d2(t_annualised, volatility, spot, strike, rate)
     let (std_normal_d1) = std_normal(d1)
-    let (std_normal_d1_spot, _) = unsigned_div_rem(std_normal_d1 * spot, UNIT)
-    let (vega, _) = unsigned_div_rem(sqrt_t * std_normal_d1_spot, UNIT)
+    let (std_normal_d1_spot, _) = signed_div_rem(std_normal_d1 * spot, UNIT, DIV_BOUND)
+    let (vega, _) = signed_div_rem(sqrt_t * std_normal_d1_spot, UNIT, DIV_BOUND)
     %{ print(f' vega:{ids.vega}  sqrt_t :{ids.sqrt_t} std_normal_d1_spot:{ids.std_normal_d1_spot} std_normal_d1  :{ids.std_normal_d1} spot:{ids.spot} ') %}
     return (vega)
 end

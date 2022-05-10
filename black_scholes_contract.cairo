@@ -28,8 +28,7 @@ const MIN_T_ANNUALISED = 31709791983764586496
 const MIN_VOLATILITY = UNIT / 10000
 const DIV_BOUND = (2 ** 128) / 2
 
-
-# formula for vanna and vomma/volga borrowed from 
+# formula for vanna and vomma/volga borrowed from
 # https://financetrainingcourse.com/education/2014/06/vega-volga-and-vanna-the-volatility-greeks/
 
 # Returns y, the exponent of x.
@@ -257,7 +256,7 @@ func sanitize_inputs{range_check_ptr}(t_annualised, volatility, spot, strike, ra
 end
 
 # Returns the option's call and put delta value.
-@external
+@view
 func delta{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (
         call_delta, put_delta):
     sanitize_inputs(t_annualised, volatility, spot, strike, rate)
@@ -269,7 +268,7 @@ func delta{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (
 end
 
 # Returns the option's gamma value.
-@external
+@view
 func gamma{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (gamma):
     alloc_locals
     sanitize_inputs(t_annualised, volatility, spot, strike, rate)
@@ -285,7 +284,7 @@ func gamma{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (ga
 end
 
 # Returns the option's vega value.
-@external
+@view
 func vega{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (vega):
     alloc_locals
     sanitize_inputs(t_annualised, volatility, spot, strike, rate)
@@ -299,7 +298,7 @@ func vega{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (veg
 end
 
 # Returns the option's vanna value.
-@external
+@view
 func vanna{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (vega):
     alloc_locals
     sanitize_inputs(t_annualised, volatility, spot, strike, rate)
@@ -313,8 +312,25 @@ func vanna{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (ve
     return (vanna)
 end
 
+# Returns the option's vanna value.
+@view
+func vomma{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (vega):
+    alloc_locals
+    sanitize_inputs(t_annualised, volatility, spot, strike, rate)
+
+    let (local sqrt_t) = sqrt(UNIT * t_annualised)
+    let (d1, d2) = d1d2(t_annualised, volatility, spot, strike, rate)
+    let (std_normal_d1) = std_normal(d1)
+    let (std_d1_mul_t, _) = unsigned_div_rem(t_annualised * std_normal_d1, UNIT)
+    let (d1_mul_d2, _) = unsigned_div_rem(d1 * d2, UNIT)
+    let (d1_mul_d2_div_vol, _) = unsigned_div_rem(UNIT * d1_mul_d2, volatility)
+
+    let (vomma, _) = unsigned_div_rem(d1_mul_d2_div_vol * std_d1_mul_t, UNIT)
+    return (vomma)
+end
+
 # Returns the option's call and put rho value.
-@external
+@view
 func rho{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (call_rho, put_rho):
     alloc_locals
     sanitize_inputs(t_annualised, volatility, spot, strike, rate)
@@ -334,7 +350,7 @@ func rho{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (call
 end
 
 # Returns the option's call and put theta value.
-@external
+@view
 func theta{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (
         call_theta, put_theta):
     alloc_locals
@@ -368,7 +384,7 @@ func theta{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (
 end
 
 # Returns the call and put options prices.
-@external
+@view
 func option_prices{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (
         call_price, put_price):
     alloc_locals

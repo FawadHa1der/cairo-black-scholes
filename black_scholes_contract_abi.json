@@ -122,6 +122,38 @@
                 "type": "felt"
             }
         ],
+        "name": "vanna",
+        "outputs": [
+            {
+                "name": "vega",
+                "type": "felt"
+            }
+        ],
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
         "name": "rho",
         "outputs": [
             {

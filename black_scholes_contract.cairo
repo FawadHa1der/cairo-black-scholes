@@ -151,21 +151,21 @@ end
 # Returns y, standard normal distribution at x.
 # This computes e^(-x^2/2) / sqrt(2*pi).
 func std_normal{range_check_ptr}(x) -> (y):
-    # If input is less than MIN_CDF_INPUT, return 0.
-    let (lower) = is_le(x, MIN_CDF_INPUT)
-    if lower == 1:
-        return (y=0)
-    end
+    # # If input is less than MIN_CDF_INPUT, return 0.
+    # let (lower) = is_le(x, MIN_CDF_INPUT)
+    # if lower == 1:
+    #     return (y=0)
+    # end
 
     # If input is greater than MAX_CDF_INPUT, return UNIT.
     let (upper) = is_in_range(x, MIN_CDF_INPUT, MAX_CDF_INPUT)
     if upper == 0:
-        return (y=UNIT)
+        return (y=0)
     end
 
     let (x_squared_over_two, _) = signed_div_rem(x * x, UNIT * 2, DIV_BOUND)
     let (exponent_term) = exp(-x_squared_over_two)
-    let (div, _) = signed_div_rem(UNIT * exponent_term, SQRT_TWOPI, DIV_BOUND)
+    let (div, _) = unsigned_div_rem(UNIT * exponent_term, SQRT_TWOPI)
     return (y=div)
 end
 
@@ -306,7 +306,7 @@ func vega{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (veg
     let (std_normal_d1) = std_normal(d1)
     let (std_normal_d1_spot, _) = signed_div_rem(std_normal_d1 * spot, UNIT, DIV_BOUND)
     let (vega, _) = signed_div_rem(sqrt_t * std_normal_d1_spot, UNIT, DIV_BOUND)
-    %{ print(f' vega:{ids.vega}  sqrt_t :{ids.sqrt_t} std_normal_d1_spot:{ids.std_normal_d1_spot} std_normal_d1  :{ids.std_normal_d1} spot:{ids.spot} ') %}
+    # %{ print(f' vega:{ids.vega}  sqrt_t :{ids.sqrt_t} std_normal_d1_spot:{ids.std_normal_d1_spot} std_normal_d1  :{ids.std_normal_d1} spot:{ids.spot} ') %}
     return (vega)
 end
 
@@ -320,8 +320,8 @@ func vanna{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (ve
     let (d1, _) = d1d2(t_annualised, volatility, spot, strike, rate)
     let (std_normal_d1) = std_normal(d1)
     let sub1_d1 = 1 - d1
-    let (std_d1_mul_subd1, _) = unsigned_div_rem(sub1_d1 * std_normal_d1, UNIT)
-    let (vanna, _) = unsigned_div_rem(sqrt_t * std_d1_mul_subd1, UNIT)
+    let (std_d1_mul_subd1, _) = signed_div_rem(sub1_d1 * std_normal_d1, UNIT, DIV_BOUND)
+    let (vanna, _) = signed_div_rem(sqrt_t * std_d1_mul_subd1, UNIT, DIV_BOUND)
     return (vanna)
 end
 
@@ -334,11 +334,11 @@ func vomma{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (ve
     let (local sqrt_t) = sqrt(UNIT * t_annualised)
     let (d1, d2) = d1d2(t_annualised, volatility, spot, strike, rate)
     let (std_normal_d1) = std_normal(d1)
-    let (std_d1_mul_t, _) = unsigned_div_rem(t_annualised * std_normal_d1, UNIT)
-    let (d1_mul_d2, _) = unsigned_div_rem(d1 * d2, UNIT)
-    let (d1_mul_d2_div_vol, _) = unsigned_div_rem(UNIT * d1_mul_d2, volatility)
+    let (std_d1_mul_t, _) = signed_div_rem(t_annualised * std_normal_d1, UNIT, DIV_BOUND)
+    let (d1_mul_d2, _) = signed_div_rem(d1 * d2, UNIT, DIV_BOUND)
+    let (d1_mul_d2_div_vol, _) = signed_div_rem(UNIT * d1_mul_d2, volatility, DIV_BOUND)
 
-    let (vomma, _) = unsigned_div_rem(d1_mul_d2_div_vol * std_d1_mul_t, UNIT)
+    let (vomma, _) = signed_div_rem(d1_mul_d2_div_vol * std_d1_mul_t, UNIT, DIV_BOUND)
     return (vomma)
 end
 

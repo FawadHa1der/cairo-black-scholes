@@ -128,7 +128,11 @@
         "name": "vanna",
         "outputs": [
             {
-                "name": "vega",
+                "name": "vanna",
+                "type": "felt"
+            },
+            {
+                "name": "vegavanna",
                 "type": "felt"
             }
         ],
@@ -161,7 +165,7 @@
         "name": "vomma",
         "outputs": [
             {
-                "name": "vega",
+                "name": "vomma",
                 "type": "felt"
             }
         ],

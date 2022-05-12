@@ -3,7 +3,8 @@
 %builtins range_check
 
 from starkware.cairo.common.math import (
-    abs_value, assert_nn, assert_le, unsigned_div_rem, signed_div_rem, assert_in_range, sqrt)
+    abs_value, assert_nn, assert_le, assert_lt, unsigned_div_rem, signed_div_rem, assert_in_range,
+    sqrt)
 from starkware.cairo.common.math_cmp import is_le, is_in_range
 from starkware.cairo.common.pow import pow
 from starkware.cairo.common.serialize import serialize_word
@@ -28,17 +29,94 @@ const MIN_T_ANNUALISED = 31709791983764586496
 const MIN_VOLATILITY = UNIT / 10000
 const DIV_BOUND = (2 ** 128) / 2
 
+# Above this value the a lot of precision is lost, and uint256s come close to not being able to handle the size
+const MAX_EXP = 50 * UNIT
+# Below this value, the result is always 0
+const MIN_EXP = (-63) * UNIT
+
 # formula for vanna and vomma/volga borrowed from
 # https://financetrainingcourse.com/education/2014/06/vega-volga-and-vanna-the-volatility-greeks/
 
 # Returns y, the exponent of x.
 # Uses first 50 terms of taylor series expansion centered at 0.
+
+func exp_signed{range_check_ptr}(x) -> (y):
+    alloc_locals
+    let (positive) = is_le(0, x)
+    if positive == 1:
+        let exp_ret : felt = exp(x)
+        return (y=exp_ret)
+    end
+
+    let (lower) = is_le(x, MIN_EXP)
+    if lower == 1:
+        # exp(-63) < 1e-27, so we just return 0
+        return (y=0)
+    end
+    let exp_ret : felt = exp(x)
+    let adjusted_exp : felt = unsigned_div_rem(UNIT * UNIT, exp_ret)
+    return (y=adjusted_exp)
+end
+
 func exp{range_check_ptr}(x) -> (y):
     alloc_locals
 
     if x == 0:
-        return (y=1)
+        return (y=UNIT)
     end
+
+    with_attr error_message("exp cannot be more than 100"):
+        assert_le(x, MAX_EXP)
+    end
+    # let (local t2, _) = unsigned_div_rem(x * x, 2 * UNIT)
+    # let (local t3, _) = unsigned_div_rem(t2 * x, 3 * UNIT)
+    # let (local t4, _) = unsigned_div_rem(t3 * x, 4 * UNIT)
+    # let (local t5, _) = unsigned_div_rem(t4 * x, 5 * UNIT)
+    # let (local t6, _) = unsigned_div_rem(t5 * x, 6 * UNIT)
+    # let (local t7, _) = unsigned_div_rem(t6 * x, 7 * UNIT)
+    # let (local t8, _) = unsigned_div_rem(t7 * x, 8 * UNIT)
+    # let (local t9, _) = unsigned_div_rem(t8 * x, 9 * UNIT)
+    # let (local t10, _) = unsigned_div_rem(t9 * x, 10 * UNIT)
+    # let (local t11, _) = unsigned_div_rem(t10 * x, 11 * UNIT)
+    # let (local t12, _) = unsigned_div_rem(t11 * x, 12 * UNIT)
+    # let (local t13, _) = unsigned_div_rem(t12 * x, 13 * UNIT)
+    # let (local t14, _) = unsigned_div_rem(t13 * x, 14 * UNIT)
+    # let (local t15, _) = unsigned_div_rem(t14 * x, 15 * UNIT)
+    # let (local t16, _) = unsigned_div_rem(t15 * x, 16 * UNIT)
+    # let (local t17, _) = unsigned_div_rem(t16 * x, 17 * UNIT)
+    # let (local t18, _) = unsigned_div_rem(t17 * x, 18 * UNIT)
+    # let (local t19, _) = unsigned_div_rem(t18 * x, 19 * UNIT)
+    # let (local t20, _) = unsigned_div_rem(t19 * x, 20 * UNIT)
+    # let (local t21, _) = unsigned_div_rem(t20 * x, 21 * UNIT)
+    # let (local t22, _) = unsigned_div_rem(t21 * x, 22 * UNIT)
+    # let (local t23, _) = unsigned_div_rem(t22 * x, 23 * UNIT)
+    # let (local t24, _) = unsigned_div_rem(t23 * x, 24 * UNIT)
+    # let (local t25, _) = unsigned_div_rem(t24 * x, 25 * UNIT)
+    # let (local t26, _) = unsigned_div_rem(t25 * x, 26 * UNIT)
+    # let (local t27, _) = unsigned_div_rem(t26 * x, 27 * UNIT)
+    # let (local t28, _) = unsigned_div_rem(t27 * x, 28 * UNIT)
+    # let (local t29, _) = unsigned_div_rem(t28 * x, 29 * UNIT)
+    # let (local t30, _) = unsigned_div_rem(t29 * x, 30 * UNIT)
+    # let (local t31, _) = unsigned_div_rem(t30 * x, 31 * UNIT)
+    # let (local t32, _) = unsigned_div_rem(t31 * x, 32 * UNIT)
+    # let (local t33, _) = unsigned_div_rem(t32 * x, 33 * UNIT)
+    # let (local t34, _) = unsigned_div_rem(t33 * x, 34 * UNIT)
+    # let (local t35, _) = unsigned_div_rem(t34 * x, 35 * UNIT)
+    # let (local t36, _) = unsigned_div_rem(t35 * x, 36 * UNIT)
+    # let (local t37, _) = unsigned_div_rem(t36 * x, 37 * UNIT)
+    # let (local t38, _) = unsigned_div_rem(t37 * x, 38 * UNIT)
+    # let (local t39, _) = unsigned_div_rem(t38 * x, 39 * UNIT)
+    # let (local t40, _) = unsigned_div_rem(t39 * x, 40 * UNIT)
+    # let (local t41, _) = unsigned_div_rem(t40 * x, 41 * UNIT)
+    # let (local t42, _) = unsigned_div_rem(t41 * x, 42 * UNIT)
+    # let (local t43, _) = unsigned_div_rem(t42 * x, 43 * UNIT)
+    # let (local t44, _) = unsigned_div_rem(t43 * x, 44 * UNIT)
+    # let (local t45, _) = unsigned_div_rem(t44 * x, 45 * UNIT)
+    # let (local t46, _) = unsigned_div_rem(t45 * x, 46 * UNIT)
+    # let (local t47, _) = unsigned_div_rem(t46 * x, 47 * UNIT)
+    # let (local t48, _) = unsigned_div_rem(t47 * x, 48 * UNIT)
+    # let (local t49, _) = unsigned_div_rem(t48 * x, 49 * UNIT)
+    # let (local t50, _) = unsigned_div_rem(t49 * x, 50 * UNIT)
 
     let (local t2, _) = signed_div_rem(x * x, 2 * UNIT, DIV_BOUND)
     let (local t3, _) = signed_div_rem(t2 * x, 3 * UNIT, DIV_BOUND)
@@ -151,7 +229,7 @@ end
 # Returns y, standard normal distribution at x.
 # This computes e^(-x^2/2) / sqrt(2*pi).
 func std_normal{range_check_ptr}(x) -> (y):
-    # # If input is less than MIN_CDF_INPUT, return 0.
+    # If input is less than MIN_CDF_INPUT, return 0.
     # let (lower) = is_le(x, MIN_CDF_INPUT)
     # if lower == 1:
     #     return (y=0)
@@ -163,7 +241,7 @@ func std_normal{range_check_ptr}(x) -> (y):
         return (y=0)
     end
 
-    let (x_squared_over_two, _) = signed_div_rem(x * x, UNIT * 2, DIV_BOUND)
+    let (x_squared_over_two, _) = unsigned_div_rem(x * x, UNIT * 2)
     let (exponent_term) = exp(-x_squared_over_two)
     let (div, _) = unsigned_div_rem(UNIT * exponent_term, SQRT_TWOPI)
     return (y=div)
@@ -306,28 +384,35 @@ func vega{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (veg
     let (std_normal_d1) = std_normal(d1)
     let (std_normal_d1_spot, _) = signed_div_rem(std_normal_d1 * spot, UNIT, DIV_BOUND)
     let (vega, _) = signed_div_rem(sqrt_t * std_normal_d1_spot, UNIT, DIV_BOUND)
-    # %{ print(f' vega:{ids.vega}  sqrt_t :{ids.sqrt_t} std_normal_d1_spot:{ids.std_normal_d1_spot} std_normal_d1  :{ids.std_normal_d1} spot:{ids.spot} ') %}
     return (vega)
 end
 
 # Returns the option's vanna value.
 @view
-func vanna{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (vega):
+func vanna{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (vanna, vegavanna):
     alloc_locals
     sanitize_inputs(t_annualised, volatility, spot, strike, rate)
 
     let (local sqrt_t) = sqrt(UNIT * t_annualised)
-    let (d1, _) = d1d2(t_annualised, volatility, spot, strike, rate)
+    let (d1, d2) = d1d2(t_annualised, volatility, spot, strike, rate)
     let (std_normal_d1) = std_normal(d1)
     let sub1_d1 = 1 - d1
     let (std_d1_mul_subd1, _) = signed_div_rem(sub1_d1 * std_normal_d1, UNIT, DIV_BOUND)
     let (vanna, _) = signed_div_rem(sqrt_t * std_d1_mul_subd1, UNIT, DIV_BOUND)
-    return (vanna)
+
+    let vegaRet : felt = vega(t_annualised, volatility, spot, strike, rate)
+    let (denom, _) = signed_div_rem(spot * volatility, UNIT, DIV_BOUND)
+    let (numer, _) = signed_div_rem(UNIT * d2, denom, DIV_BOUND)
+
+    let (vegavanna, _) = signed_div_rem(vegaRet * numer, UNIT, DIV_BOUND)
+    # %{ print(f' vegavanna:{ids.vegavanna}  vanna :{ids.vanna} ') %}
+
+    return (vanna, vegavanna)
 end
 
 # Returns the option's vanna value.
 @view
-func vomma{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (vega):
+func vomma{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (vomma):
     alloc_locals
     sanitize_inputs(t_annualised, volatility, spot, strike, rate)
 

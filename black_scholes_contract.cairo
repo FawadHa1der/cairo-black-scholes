@@ -353,7 +353,7 @@ func delta{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (
 
     let (d1, _) = d1d2(t_annualised, volatility, spot, strike, rate)
     let (call_delta) = std_normal_cdf(d1)
-    let put_delta = call_delta - 1
+    let put_delta = call_delta - UNIT
     return (call_delta, put_delta)
 end
 
@@ -396,7 +396,7 @@ func vanna{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (va
     let (local sqrt_t) = sqrt(UNIT * t_annualised)
     let (d1, d2) = d1d2(t_annualised, volatility, spot, strike, rate)
     let (std_normal_d1) = std_normal(d1)
-    let sub1_d1 = 1 - d1
+    let sub1_d1 = UNIT - d1
     let (std_d1_mul_subd1, _) = signed_div_rem(sub1_d1 * std_normal_d1, UNIT, DIV_BOUND)
     let (vanna, _) = signed_div_rem(sqrt_t * std_d1_mul_subd1, UNIT, DIV_BOUND)
 

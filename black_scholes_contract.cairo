@@ -353,7 +353,7 @@ func delta{range_check_ptr}(t_annualised, volatility, spot, strike, rate) -> (
 
     let (d1, _) = d1d2(t_annualised, volatility, spot, strike, rate)
     let (call_delta) = std_normal_cdf(d1)
-    let put_delta = call_delta - UNIT
+    let put_delta = call_delta - 1
     return (call_delta, put_delta)
 end
 

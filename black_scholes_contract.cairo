@@ -502,3 +502,78 @@ func option_prices{range_check_ptr}(t_annualised, volatility, spot, strike, rate
     local put_price = call_price + strike_pv - spot
     return (call_price, put_price)
 end
+
+# Returns the option's vgvv value.
+@view
+func vgvv{range_check_ptr}(t_annualised, k, c_gamma, c_vanna, c_volga) -> (vgvv):
+    alloc_locals
+    # sanitize_inputs(t_annualised, k, spot, strike, rate)
+    # %{ print(f't_annualised :{ids.t_annualised} ') %}
+
+    let (b : felt) = vgvv_b(t_annualised, k, c_gamma, c_vanna, c_volga)
+    let (c : felt) = vgvv_c(t_annualised, k, c_gamma, c_vanna, c_volga)
+    let (a : felt) = vgvv_a(t_annualised, k, c_gamma, c_vanna, c_volga)
+
+    # %{ print(f'a :{ids.a} b :{ids.b} c : {ids.b}') %}
+    let k_minus_b = k - b
+    # %{ print(f'k_minus_b :{ids.k_minus_b} ') %}
+    let (k_minus_b_sqr, _) = signed_div_rem(k_minus_b * k_minus_b, UNIT, DIV_BOUND)
+    # %{ print(f'k_minus_b_sqr :{ids.k_minus_b_sqr}') %}
+    let k_minus_b_sqr_plus_c = k_minus_b_sqr + c
+    # %{ print(f'k_minus_b_sqr_plus_c :{ids.k_minus_b_sqr_plus_c}') %}
+    let (sqrt_right_exp : felt) = sqrt(UNIT * k_minus_b_sqr_plus_c)
+    # %{ print(f'sqrt_right_exp :{ids.sqrt_right_exp}') %}
+    let a_plus_sqrt_right_exp = a + sqrt_right_exp
+    # %{ print(f'a_plus_sqrt_right_exp :{ids.a_plus_sqrt_right_exp}') %}
+    let (big_right_exp_div_tau, _) = signed_div_rem(
+        UNIT * a_plus_sqrt_right_exp, t_annualised, DIV_BOUND)
+    # %{ print(f'big_right_exp_div_tau :{ids.big_right_exp_div_tau}') %}
+    let vgvv = big_right_exp_div_tau * 2
+    # %{ print(f'vgvv :{ids.vgvv}') %}
+    return (vgvv)
+end
+
+@view
+func vgvv_a{range_check_ptr}(t_annualised, k, c_gamma, c_vanna, c_volga) -> (a):
+    alloc_locals
+    let (local sqrt_t) = sqrt(UNIT * t_annualised)
+    let (vanna_mul_tau, _) = signed_div_rem(c_vanna * sqrt_t, UNIT, DIV_BOUND)
+    let numerator = UNIT - vanna_mul_tau
+    let (local result, _) = signed_div_rem(UNIT * numerator, c_volga, DIV_BOUND)
+    return (-result)
+end
+
+@view
+func vgvv_b{range_check_ptr}(t_annualised, k, c_gamma, c_vanna, c_volga) -> (b):
+    alloc_locals
+    let (local sqrt_t) = sqrt(UNIT * t_annualised)
+    let (vanna_mul_tau, _) = signed_div_rem(c_vanna * sqrt_t, UNIT, DIV_BOUND)
+    let (local result, _) = signed_div_rem(UNIT * vanna_mul_tau, c_volga, DIV_BOUND)
+    return (-result)
+end
+
+@view
+func vgvv_c{range_check_ptr}(t_annualised, k, c_gamma, c_vanna, c_volga) -> (c):
+    alloc_locals
+    let (gamma_mul_tau, _) = signed_div_rem(c_gamma * t_annualised, UNIT, DIV_BOUND)
+    let (local exp1, _) = signed_div_rem(UNIT * gamma_mul_tau, c_volga, DIV_BOUND)
+
+    let (vanna_sq, _) = signed_div_rem(c_vanna * c_vanna, UNIT, DIV_BOUND)
+    let (volga_sq, _) = signed_div_rem(c_volga * c_volga, UNIT, DIV_BOUND)
+    let (local vanna_sq_mul_tau, _) = signed_div_rem(t_annualised * vanna_sq, UNIT, DIV_BOUND)
+    let (local exp2, _) = signed_div_rem(UNIT * vanna_sq_mul_tau, volga_sq, DIV_BOUND)
+
+    let (local sqrt_t) = sqrt(UNIT * t_annualised)
+    let (vanna_mul_tau, _) = signed_div_rem(c_vanna * sqrt_t, UNIT, DIV_BOUND)
+    let unit_sub_vanna_tau = UNIT - vanna_mul_tau
+    let (unit_sub_vanna_tau_square, _) = signed_div_rem(
+        unit_sub_vanna_tau * unit_sub_vanna_tau, UNIT, DIV_BOUND)
+    let (c_volga_sqaure, _) = signed_div_rem(c_volga * c_volga, UNIT, DIV_BOUND)
+    let (local exp3, _) = signed_div_rem(
+        UNIT * unit_sub_vanna_tau_square, c_volga_sqaure, DIV_BOUND)
+
+    let exp1_sub_exp2 = exp1 - exp2
+    let exp1_sub_exp2_plus_exp3 = exp1_sub_exp2 + exp3
+    let c = exp1_sub_exp2_plus_exp3
+    return (c)
+end

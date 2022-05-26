@@ -1,0 +1,418 @@
+[
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "delta",
+        "outputs": [
+            {
+                "name": "call_delta",
+                "type": "felt"
+            },
+            {
+                "name": "put_delta",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "gamma",
+        "outputs": [
+            {
+                "name": "gamma",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "vega",
+        "outputs": [
+            {
+                "name": "vega",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "vanna",
+        "outputs": [
+            {
+                "name": "vanna",
+                "type": "felt"
+            },
+            {
+                "name": "vegavanna",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "vomma",
+        "outputs": [
+            {
+                "name": "vomma",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "rho",
+        "outputs": [
+            {
+                "name": "call_rho",
+                "type": "felt"
+            },
+            {
+                "name": "put_rho",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "theta",
+        "outputs": [
+            {
+                "name": "call_theta",
+                "type": "felt"
+            },
+            {
+                "name": "put_theta",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "volatility",
+                "type": "felt"
+            },
+            {
+                "name": "spot",
+                "type": "felt"
+            },
+            {
+                "name": "strike",
+                "type": "felt"
+            },
+            {
+                "name": "rate",
+                "type": "felt"
+            }
+        ],
+        "name": "option_prices",
+        "outputs": [
+            {
+                "name": "call_price",
+                "type": "felt"
+            },
+            {
+                "name": "put_price",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "k",
+                "type": "felt"
+            },
+            {
+                "name": "c_gamma",
+                "type": "felt"
+            },
+            {
+                "name": "c_vanna",
+                "type": "felt"
+            },
+            {
+                "name": "c_volga",
+                "type": "felt"
+            }
+        ],
+        "name": "vgvv",
+        "outputs": [
+            {
+                "name": "vgvv",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "k",
+                "type": "felt"
+            },
+            {
+                "name": "c_gamma",
+                "type": "felt"
+            },
+            {
+                "name": "c_vanna",
+                "type": "felt"
+            },
+            {
+                "name": "c_volga",
+                "type": "felt"
+            }
+        ],
+        "name": "vgvv_a",
+        "outputs": [
+            {
+                "name": "a",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "k",
+                "type": "felt"
+            },
+            {
+                "name": "c_gamma",
+                "type": "felt"
+            },
+            {
+                "name": "c_vanna",
+                "type": "felt"
+            },
+            {
+                "name": "c_volga",
+                "type": "felt"
+            }
+        ],
+        "name": "vgvv_b",
+        "outputs": [
+            {
+                "name": "b",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "t_annualised",
+                "type": "felt"
+            },
+            {
+                "name": "k",
+                "type": "felt"
+            },
+            {
+                "name": "c_gamma",
+                "type": "felt"
+            },
+            {
+                "name": "c_vanna",
+                "type": "felt"
+            },
+            {
+                "name": "c_volga",
+                "type": "felt"
+            }
+        ],
+        "name": "vgvv_c",
+        "outputs": [
+            {
+                "name": "c",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]
